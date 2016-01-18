@@ -1,0 +1,5 @@
+folder:/home/alexander/Downloads/ges_data/clean/
+subfolders:2010/,2011/,2012/,2013/,2014/
+filenames:accident,drimpair,person,violation,distract,nmcrash,vehicle,vision
+ignore:ignore/
+max_iter:-1

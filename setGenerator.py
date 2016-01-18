@@ -27,7 +27,7 @@ def genAttrSet():
     for openedFile in openedFiles:
         csvObjects.append(csv.DictReader(openedFile,delimiter=','))
 
-    # OPEN ALL OGNORE FILE
+    # OPEN ALL IGNORE FILE
     openedIgnoreFiles = []
     for fileName in stg.conf_dic['filenames']:
         openedIgnoreFiles.append(open(stg.conf_dic['ignore'][0]+fileName,'r'))
