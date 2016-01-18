@@ -62,15 +62,17 @@ def genAttrSet():
                 attr = name+':'+value
                 item_set.add(attr)	# add new attributes if not yet in the set
                 if attr in valueLookup:
-                    index = valueLookup[attr]
+                    index = valueLookup[attr]   # index is the actual value for attributes (already inserted)
                 else:
                     valueLookup[attr] = productId
                     keyLookup.append(attr)
-                    productId+=1
-                if joinerValue in itemBaskets:
-                    itemBaskets[joinerValue].add(productId)
+                    index = productId           # index is a new value for the new attribute, if it is the first time appearing here
+                    productId+=1                # Product id is the value assigned to new entries that will come
+                if itemBaskets.has_key(joinerValue):
+                    dic = itemBaskets[joinerValue]
+                    dic.add(index)
                 else:
-                    itemBaskets[joinerValue] = set([productId])
+                    itemBaskets[joinerValue] = set([index])
 """
 
     pickle.dump(keyLookup, open("out/keyLookup.p", "w"))
@@ -95,9 +97,9 @@ def printstats():
     #print " FILE BASENAMES:", stg.conf_dic['filenames']
     #print " ignoreList: ",ignoreList
     #print item_set
-    #print len(item_set)
-    #print "len keyLookup: ",len(keyLookup),keyLookup
-    #print "len valueLookup: ",len(valueLookup),valueLookup
+    print len(item_set)
+    print "len keyLookup: ",len(keyLookup),keyLookup
+    print "len valueLookup: ",len(valueLookup),valueLookup
     print itemBaskets
 
 def main():
