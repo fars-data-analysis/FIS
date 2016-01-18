@@ -40,17 +40,16 @@ def genAttrSet():
     for i in range(0,len(csvObjects)):
         csvObj = csvObjects[i]
         for row in csvObj:
-            arr = ignoreList[i % len(ignoreList)]
+            ignoreCols = ignoreList[i % len(ignoreList)]
             #print arr
-            for j in arr:
-                #print j
+            for j in ignoreCols:
                 try:
                     c = row.pop(j)
                     #print row
                 except:
                     print "error line 47 setGenerator, malformed ignorefile."
-        	for name,value in row.iteritems():
-                    item_set.add(name+':'+value)	# add new attributes if not yet in the set
+            for name,value in row.iteritems():
+                item_set.add(name+':'+value)	# add new attributes if not yet in the set
 
 
 def printstats():
