@@ -1,4 +1,5 @@
 import settings as stg
+import pickle
 import csv
 
 
@@ -10,7 +11,11 @@ openedFiles = []
 csvObjects = []
 item_set = set()
 ignoreList = []
+keyLookup = [] # for each number it contains the string value of attributes
+valueLookup = {} # for each key it stores the numeric value of it
+# itemBaskets = [set() for i in range(0,int(stg.conf_dic['baskets'][0])] # Array(/list) of sets (actually our baskets)
 
+itemBaskets = {}
 
 def genAttrSet():
 
@@ -37,30 +42,63 @@ def genAttrSet():
         ignoreList.append([x.strip("\n") for x in f.readlines()])
 
     # CREATES THE SET
+    productId = 0
     for i in range(0,len(csvObjects)):
         csvObj = csvObjects[i]
         for row in csvObj:
             ignoreCols = ignoreList[i % len(ignoreList)]
+            #print row
+
+            joinerValue = row.pop(stg.conf_dic['joiner'][0])
             #print arr
             for j in ignoreCols:
                 try:
-                    c = row.pop(j)
-                    #print row
+                    if (j!= stg.conf_dic['joiner'][0]):
+                        c = row.pop(j)
+                        #print row
                 except:
                     print "error line 47 setGenerator, malformed ignorefile."
             for name,value in row.iteritems():
-                item_set.add(name+':'+value)	# add new attributes if not yet in the set
+                attr = name+':'+value
+                item_set.add(attr)	# add new attributes if not yet in the set
+                if attr in valueLookup:
+                    index = valueLookup[attr]
+                else:
+                    valueLookup[attr] = productId
+                    keyLookup.append(attr)
+                    productId+=1
+                if joinerValue in itemBaskets:
+                    itemBaskets[joinerValue].add(productId)
+                else:
+                    itemBaskets[joinerValue] = set([productId])
+"""
+
+    pickle.dump(keyLookup, open("out/keyLookup.p", "w"))
+    pickle.dump(valueLookup, open("out/valueLookup.p", "w"))
+    global keyLookup
+    keyLookup = [0]*len(item_set)
+    for attr in item_set:
+        valueLookup[attr] = i
+        keyLookup[i] = attr
+        i+=1
+
+"""
+
 
 
 def printstats():
-    print "PATHS: "
-    for i in paths:
-        print i
-    print " NUMBER OF FILES OPENED: ",len(openedFiles)
-    print " NUMBER OF CSV OPENED: ",len(csvObjects)
-    print " FILE BASENAMES:", stg.conf_dic['filenames']
-    print " ignoreList: ",ignoreList
-    print item_set
+    #print "PATHS: "
+    #for i in paths:
+    #    print i
+    #print " NUMBER OF FILES OPENED: ",len(openedFiles)
+    #print " NUMBER OF CSV OPENED: ",len(csvObjects)
+    #print " FILE BASENAMES:", stg.conf_dic['filenames']
+    #print " ignoreList: ",ignoreList
+    #print item_set
+    #print len(item_set)
+    #print "len keyLookup: ",len(keyLookup),keyLookup
+    #print "len valueLookup: ",len(valueLookup),valueLookup
+    print itemBaskets
 
 def main():
     genAttrSet()
