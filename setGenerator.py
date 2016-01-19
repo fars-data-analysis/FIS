@@ -73,6 +73,12 @@ def genAttrSet():
                     dic.add(index)
                 else:
                     itemBaskets[joinerValue] = set([index])
+    return [x for x in itemBaskets.values()]
+
+
+
+#    pickle.dump(itemBaskets, open("out/itemBaskets.p", "w"))
+
 """
 
     pickle.dump(keyLookup, open("out/keyLookup.p", "w"))
@@ -87,7 +93,14 @@ def genAttrSet():
 """
 
 
+def countFrequency(itemBaskets):
+    freq = [0]*len(itemBaskets)
+    for x in itemBaskets:
+        for y in x:
+            freq[y]+=1
+    return freq
 
+    
 def printstats():
     #print "PATHS: "
     #for i in paths:
@@ -104,7 +117,7 @@ def printstats():
 
 def main():
     genAttrSet()
-    printstats()
+    #printstats()
 
 
 
