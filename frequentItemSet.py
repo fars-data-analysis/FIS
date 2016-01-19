@@ -38,14 +38,40 @@ def getFrequentItems(freqDict,s):
     return finalists
 """
 
-def createNples(itemBaskets,finalists):
+def createNaples(itemBaskets,finalists,n):
     candidates = {}
     for x in itemBaskets:
-        for t_uple in itertools.combinations(x, 2):
+    #    toRemove = set()
+    #    for t_check in itertools.combinations(x, n-1):
+    #        [toRemove.add(y) for y in t_check if y not in finalists]
+    #    x.difference_update(toRemove)
+        candidate_parts = [t for t in intertools.combinations(x, n-1) if t in finalists]
+        for t_uple in itertools.combinations(x, n):
+            if n == 2:
+                parts = [t_uple[0], t_uple[1]]
+            else:
+                parts = [s for s in itertools.combinations(t_uple, n-1)]
+            if finalists.issuperset(parts):
+                if candidates.has_key(t_uple):
+                    candidates[t_uple]+=1
+                else:
+                    candidates[t_uple]=1
+    return candidates
+    #itertools.combinations(sentence, len(finalists)):
+
+
+def createNples(itemBaskets,finalists,n):
+    candidates = {}
+    for x in itemBaskets:
+        toRemove = set()
+        for t_uple in itertools.combinations(x, n):
             if finalists.issuperset(t_uple):
                 if candidates.has_key(t_uple):
                     candidates[t_uple]+=1
                 else:
                     candidates[t_uple]=1
+            else:
+                [toRemove.add(t) for t in t_uple]
+        x.difference_update(toRemove)
     return candidates
     #itertools.combinations(sentence, len(finalists)):
