@@ -1,9 +1,9 @@
 import sys
 
 from pyspark import SparkContext
+from pyspark.mllib.fpm import FPGrowth
 
-
-def findFrequentItemsets(data, p, n_p, s, r):
+def findFrequentItemsets(input, p, n_p, s, r):
     """Finds frequent itemsets contained in a given datafile.
 
     This function takes n_p samples of size p and runs the bongar algorithm
@@ -37,7 +37,54 @@ def findFrequentItemsets(data, p, n_p, s, r):
         guarantee that all frequent itemsets were found. But if something is
         in the list, it must be a frequent itemset.
     """
-     
+
+    #Read input file
+    data = sc.textFile(input)
+
+    #Generate random samples
+    samples = []
+    for i in range(0, n_p):
+        samples += sc.sample(True, p)
+
+    #Calculate itemsets and negative borders
+    candidateResults = []
+    for sample in Samples:
+        model = FPGrowth.train(transactions, minSupport=s*r, numPartitions=10)
+        candidateResults += model.freqItemsets()
+        #CandidateResults += sample.mapPartitions(findCandidates, True).
+
+    #Merge results
+    allCandidates = candidateResults.pop()
+    for c in candidateResults:
+        allCandidates.union(c)
+    allCandidates = allCandidates.distinct().collect()
+
+    #Broadcast candidate itemsets
+    finalCandidates = []
+    for freqItem in allCandidates:
+        finalCandidates += freqItem.items
+
+    finalCandidates = sc.broadcast(finalCandidates)
+
+    #Perform actual count
+    def countFrequency(basket):
+        count = {}
+        basketSet = set(basket)
+        for c in finalCandidates:
+            if basketSet.superset(c.item):
+                if c.item in count:
+                    count[c.item] += 1
+                else:
+                    count[c.item] = 1
+        return [(x,count[x]) for x in count]
+
+    mergedItemsets = data.flatMap(countFrequency).reduceByKey(lambda v1, v2: v1+v2)
+
+    #Collect results and filter with threshold
+    result = mergedItemsets.filter(lambda (x,y): y>s).collect()
+
+    return result
+
 
 if __name__=="__main__":
 
@@ -51,10 +98,10 @@ if __name__=="__main__":
     s = sys.arg[4] #Threshold for the final itemsets
     r = sys.arg[5] #Factor to dicrease the threshold for the samples
 
+    #Start Spark
     sc = SparkContext(appName="FreqItemsetSON")
-
-    line = sc.textFile(data)
 
     findFrequentItemsets(data, p, n_p, s, r)
 
+    #End Spark
     sc.stop()
