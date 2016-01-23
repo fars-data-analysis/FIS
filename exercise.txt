@@ -1,0 +1,60 @@
+1 2 3 4 5
+1 2 4 5 6
+1 2 5 7 6
+1 2 4 7 6
+1 2 5 7 6
+
+1:  5
+2:  5
+3: (1)
+4:  3
+5:  4
+6:  4
+7:  3
+
+THR < 3
+2-ple || Support:
+(1,2):     5
+(1,3):    (1)
+(1,4):     3
+(1,5):     4
+(1,6):     4
+(1,7):     3
+(2,3):    (1)
+(2,4):     3
+(2,5):     4
+(2,6):     4
+(2,7):     3
+(3,4):    (1)
+(3,5):    (0)
+(3,6):    (0)
+(3,7):    (0)
+(4,5):    (2)
+(4,6):    (2)
+(4,7):    (1)
+(5,6):     3
+(5,7):    (2)
+(6,7):     3
+
+
+2-ple     || Support:
+
+(1, 2, 4):     3
+(1, 2, 5):     4
+(1, 2, 6):     4
+(1, 2, 7):     3
+(1, 6, 7):     3
+(2, 6, 7):     3
+(1, 5, 6):     3
+(2, 5, 6):     3
+
+Se so quali triple sono presenti in quali baskets, considerando i basket contenenti le triple come insiemi,
+allora posso intersecare gli insiemi dei baskets tra di loro per vedere se le quadruple superano il treshold
+verificare applicabilità. questo sembrerebbe potrebbe essere applicato solo a triplette che differiscono tra di loro
+di un solo numero. unione = quadrupla.
+
+[[1, 2, 3, 4, 5],
+[1, 2, 4, 5, 6],
+[1, 2, 5, 7, 6],
+[1, 2, 4, 7, 6],
+[1, 2, 5, 7, 6]]

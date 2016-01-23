@@ -59,20 +59,21 @@ def genAttrSet():
                 except:
                     print "error line 47 setGenerator, malformed ignorefile."
             for name,value in row.iteritems():
-                attr = name+':'+value
-                item_set.add(attr)	# add new attributes if not yet in the set
-                if attr in valueLookup:
-                    index = valueLookup[attr]   # index is the actual value for attributes (already inserted)
-                else:
-                    valueLookup[attr] = productId
-                    keyLookup.append(attr)
-                    index = productId           # index is a new value for the new attribute, if it is the first time appearing here
-                    productId+=1                # Product id is the value assigned to new entries that will come
-                if itemBaskets.has_key(joinerValue):
-                    dic = itemBaskets[joinerValue]
-                    dic.add(index)
-                else:
-                    itemBaskets[joinerValue] = set([index])
+                if value!="":
+                    attr = name+':'+value
+                    item_set.add(attr)	# add new attributes if not yet in the set
+                    if attr in valueLookup:
+                        index = valueLookup[attr]   # index is the actual value for attributes (already inserted)
+                    else:
+                        valueLookup[attr] = productId
+                        keyLookup.append(attr)
+                        index = productId           # index is a new value for the new attribute, if it is the first time appearing here
+                        productId+=1                # Product id is the value assigned to new entries that will come
+                    if itemBaskets.has_key(joinerValue):
+                        dic = itemBaskets[joinerValue]
+                        dic.add(index)
+                    else:
+                        itemBaskets[joinerValue] = set([index])
     return [x for x in itemBaskets.values()]
 
 
@@ -100,7 +101,7 @@ def countFrequency(itemBaskets):
             freq[y]+=1
     return freq
 
-    
+
 def printstats():
     #print "PATHS: "
     #for i in paths:
@@ -115,11 +116,11 @@ def printstats():
     print "len valueLookup: ",len(valueLookup),valueLookup
     print itemBaskets
 
+
+
 def main():
-    genAttrSet()
+    baschetti = genAttrSet()
     #printstats()
-
-
 
 
 if __name__ == '__main__':
