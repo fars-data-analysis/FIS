@@ -3,7 +3,7 @@ import sys
 from pyspark import SparkContext
 from pyspark.mllib.fpm import FPGrowth
 
-def findFrequentItemsets(input, p, n_p, s, r):
+def findFrequentItemsets(input, p, n_p, s, r, sc):
     """Finds frequent itemsets contained in a given datafile.
 
     This function takes n_p samples of size p and runs the bongar algorithm
@@ -44,41 +44,32 @@ def findFrequentItemsets(input, p, n_p, s, r):
     #Generate random samples
     samples = []
     for i in range(0, n_p):
-        samples += sc.sample(True, p)
+        samples.append(data.sample(True, p).map(lambda x: x.strip().split(' ')))
 
+    s=0.2
     #Calculate itemsets and negative borders
     candidateResults = []
-    for sample in Samples:
-        model = FPGrowth.train(transactions, minSupport=s*r, numPartitions=10)
-        candidateResults += model.freqItemsets()
-        #CandidateResults += sample.mapPartitions(findCandidates, True).
+    for sample in samples:
+        model = FPGrowth.train(sample, minSupport=s*r, numPartitions=10)
+        candidateResults.append(model.freqItemsets().map(lambda x: tuple(x.items)))
 
     #Merge results
-    allCandidates = candidateResults.pop()
+    mergedResults = candidateResults.pop()
     for c in candidateResults:
-        allCandidates.union(c)
-    allCandidates = allCandidates.distinct().collect()
+        mergedResults = mergedResults.union(c)
 
     #Broadcast candidate itemsets
-    finalCandidates = []
-    for freqItem in allCandidates:
-        finalCandidates += freqItem.items
-
-    finalCandidates = sc.broadcast(finalCandidates)
+    finalCandidates = sc.broadcast(mergedResults.distinct().collect())
 
     #Perform actual count
     def countFrequency(basket):
-        count = {}
-        basketSet = set(basket)
-        for c in finalCandidates:
-            if basketSet.superset(c.item):
-                if c.item in count:
-                    count[c.item] += 1
-                else:
-                    count[c.item] = 1
-        return [(x,count[x]) for x in count]
+        emit = []
+        for c in finalCandidates.value:
+            if basket.issuperset(c):
+                emit.append(c)
+        return [(x,1) for x in emit]
 
-    mergedItemsets = data.flatMap(countFrequency).reduceByKey(lambda v1, v2: v1+v2)
+    mergedItemsets = data.mapPartitions(lambda baskets: [set(b) for b in baskets]).flatMap(countFrequency).reduceByKey(lambda v1, v2: v1+v2)
 
     #Collect results and filter with threshold
     result = mergedItemsets.filter(lambda (x,y): y>s).collect()
@@ -86,6 +77,7 @@ def findFrequentItemsets(input, p, n_p, s, r):
     return result
 
 
+"""
 if __name__=="__main__":
 
     if len(sys.argv) != 4:
@@ -105,3 +97,4 @@ if __name__=="__main__":
 
     #End Spark
     sc.stop()
+"""
