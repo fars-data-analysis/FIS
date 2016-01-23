@@ -1,9 +1,10 @@
 import sys
 
+from string import atoi
 from pyspark import SparkContext
 from pyspark.mllib.fpm import FPGrowth
 
-def findFrequentItemsets(input, p, n_p, s, r, sc):
+def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
     """Finds frequent itemsets contained in a given datafile.
 
     This function takes n_p samples of size p and runs the bongar algorithm
@@ -39,42 +40,46 @@ def findFrequentItemsets(input, p, n_p, s, r, sc):
     """
 
     #Read input file
-    data = sc.textFile(input)
+    data = sc.textFile(input).map(lambda x: x.strip().split(' ')).persist()
+
+    size = data.count()
 
     #Generate random samples
     samples = []
     for i in range(0, n_p):
-        samples.append(data.sample(True, p).map(lambda x: x.strip().split(' ')))
+        samples.append(data.sample(False, p))
 
-    s=0.2
-    #Calculate itemsets and negative borders
+    #Calculate itemsets
     candidateResults = []
     for sample in samples:
-        model = FPGrowth.train(sample, minSupport=s*r, numPartitions=10)
-        candidateResults.append(model.freqItemsets().map(lambda x: tuple(x.items)))
+        model = FPGrowth.train(sample, minSupport=s*r)
+        candidateResults.append(model.freqItemsets().filter(lambda x: len(x.items)<=n).map(lambda x: tuple(sorted(x.items))))
 
-    #Merge results
+    #Merge results from all workers
     mergedResults = candidateResults.pop()
     for c in candidateResults:
         mergedResults = mergedResults.union(c)
 
     #Broadcast candidate itemsets
-    finalCandidates = sc.broadcast(mergedResults.distinct().collect())
+    finalCandidates = mergedResults.distinct()
+    finalCandidates.map(lambda x: ", ".join(x)).saveAsTextFile(output+"/candidates")
 
-    #Perform actual count
+    candidatesBroadcast = sc.broadcast(finalCandidates.collect())
+
+    #Perform occurrence of candidates to discard false positives
     def countFrequency(basket):
         emit = []
-        for c in finalCandidates.value:
+        for c in candidatesBroadcast.value:
             if basket.issuperset(c):
                 emit.append(c)
         return [(x,1) for x in emit]
 
-    mergedItemsets = data.mapPartitions(lambda baskets: [set(b) for b in baskets]).flatMap(countFrequency).reduceByKey(lambda v1, v2: v1+v2)
+    mergedItemsets = data.map(lambda x: frozenset(x)).flatMap(countFrequency).reduceByKey(lambda v1, v2: v1+v2).filter(lambda x: x[1]>size*s)
 
     #Collect results and filter with threshold
-    result = mergedItemsets.filter(lambda (x,y): y>s).collect()
+    mergedItemsets.saveAsTextFile(output+"/itemsets")
 
-    return result
+    return True
 
 
 """
