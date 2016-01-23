@@ -5,7 +5,7 @@ import setGenerator
 import frequentItemSet001 as fis
 
 THRESHOLD = 51000
-THRES_HOLD = 2900
+THRES_HOLD = 2000
 
 TH_MIN = 500
 TH_MAX = 600
@@ -42,6 +42,9 @@ print " Baskets ready! :) "
 #candidates1 = fis.countFrequency(baskets)
 #finalists1, simplefinalists1 = fis.getFrequentItems1(candidates1,TH_MIN,TH_MAX)
 
+candidates1 = fis.countFrequency(baskets)
+
+"""
 candidates1 = fis.countFrequency(baskets)
 finalists1, simplefinalists1 = fis.getFrequentItems(candidates1,THRES_HOLD)
 print "round 1 FINITO"
@@ -80,7 +83,7 @@ print "C1 size:",len(candidates6)
 print "L1 size:",len(finalists6)
 
 list(finalists6).sort()
-
+"""
 
 
 """
