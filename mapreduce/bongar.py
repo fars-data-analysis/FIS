@@ -52,8 +52,8 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
     #Calculate itemsets
     candidateResults = []
     for sample in samples:
-        model = FPGrowth.train(sample, minSupport=s*r)
-        candidateResults.append(model.freqItemsets().filter(lambda x: len(x.items)<=n).map(lambda x: tuple(sorted(x.items))))
+        model = FPGrowth.train(sample, minSupport=s*r, maxPatternLength=n)
+        candidateResults.append(model.freqItemsets().map(lambda x: tuple(sorted(x.items))))
 
     #Merge results from all workers
     mergedResults = candidateResults.pop()
