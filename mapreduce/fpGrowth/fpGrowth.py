@@ -4,17 +4,18 @@ from string import atoi
 from pyspark import SparkContext
 
 # /home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt
-i_nput = "/home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt"
+file = "/home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt"
 parameter = 120
+numPartitions = 8
 
-data = sc.textFile(i_nput)
+data = sc.textFile(file, minPartitions=numPartitions).map(lambda x: map(int, x.strip().split(' '))).persist()
 minSupport = parameter
 
 freqItems = getFrequentItems(data, minSupport)
 freqItemsets = getFrequentItemsets(data, minSupport, freqItems)
 
 def getFrequentItems(data,minSupport):
-    singleItems = data.flatMap(lambda x: [(int(y),1) for y in x.strip().split(' ')])
+    singleItems = data.flatMap(lambda x: [(y,1) for y in x])
     freqItems = [x for (x,y) in
     sorted(singleItems.reduceByKey(lambda x,y: x+y)
         .filter(lambda c: c[1]>=minSupport).collect(), key=lambda x: -x[1])]
@@ -28,7 +29,7 @@ def getFrequentItemsets(data,minSupport,freqItems):
 
 def genCondTransactions(basket, rank, nPartitions):
     #translate into new id's using rank
-    filtered = [rank[int(x)] for x in basket.strip().split(" ") if rank.has_key(int(x))]
+    filtered = [rank[int(x)] for x in basket if rank.has_key(int(x))]
     #sort basket in ascending rank
     filtered = sorted(filtered)
     #subpatterns to send to each worker. (part_id, basket_slice)
@@ -36,7 +37,7 @@ def genCondTransactions(basket, rank, nPartitions):
     for i in range(len(filtered)-1, -1, -1):
         item = filtered[i]
         partition = getPartitionId(item, nPartitions)
-        if(!output.has_key(partition)):
+        if not output.has_key(partition):
             output[partition] = filtered[:i+1]
     return [x for x in output.iteritems()]
 
