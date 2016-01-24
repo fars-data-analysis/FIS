@@ -40,7 +40,7 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
     """
 
     #Read input file
-    data = sc.textFile(input).map(lambda x: x.strip().split(' ')).persist()
+    data = sc.textFile(input).map(lambda x: [y for y in x.strip().split(' ')]).persist()
 
     size = data.count()
 
