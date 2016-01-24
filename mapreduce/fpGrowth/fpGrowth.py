@@ -22,13 +22,23 @@ def getFrequentItems(data,minSupport):
 
 def getFrequentItemsets(data,minSupport,freqItems):
     rank = dict([(index, item) for (item,index) in enumerate(freqItems)]) # Ordered list based on the freequncy of items, the first is the most appearing one , the last is not appearing too much.
-    dd = data.flatMap(lambda basket: genCondTransactions(basket,rank))    #
+    numPartitions = data.getNumPartitions()
+    dd = data.flatMap(lambda basket: genCondTransactions(basket,rank,numPartitions))    #
     return dd
 
-def genCondTransactions(basket,rank):
+def genCondTransactions(basket, rank, nPartitions):
+    #translate into new id's using rank
     filtered = [rank[int(x)] for x in basket.strip().split(" ") if rank.has_key(int(x))]
-    filtered = sorted(filtered, reverse=True)
-    return [filtered]
+    #sort basket in ascending rank
+    filtered = sorted(filtered)
+    #subpatterns to send to each worker. (part_id, basket_slice)
+    output = {}
+    for i in range(len(filtered)-1, -1, -1):
+        item = filtered[i]
+        partition = getPartitionId(item, nPartitions)
+        if(!output.has_key(partition)):
+            output[partition] = filtered[:i+1]
+    return [x for x in output.iteritems()]
 
 def getPartitionId(key, nPartitions):
     return key % nPartitions
