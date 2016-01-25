@@ -5,15 +5,6 @@ from pyspark import SparkContext
 from fpTree import FPTree
 
 # /home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt
-file = "/home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt"
-parameter = 120
-numPartitions = 8
-
-data = sc.textFile(file, minPartitions=numPartitions).map(lambda x: map(int, x.strip().split(' '))).persist()
-minSupport = parameter
-
-freqItems = getFrequentItems(data, minSupport)
-freqItemsets = getFrequentItemsets(data, minSupport, freqItems)
 
 def getFrequentItems(data,minSupport):
     singleItems = data.flatMap(lambda x: [(y,1) for y in x])
@@ -27,7 +18,7 @@ def getFrequentItemsets(data,minSupport,freqItems):
     numPartitions = data.getNumPartitions()
     workByPartition = data.flatMap(lambda basket: genCondTransactions(basket,rank,numPartitions))
     emptyTree = FPTree()
-    result = workByPartition.aggregateByKey(emptyTree,lambda tree,transaction: tree.add(transaction),lambda tree1,tree2: tree1.merge(tree2))
+    result = workByPartition.aggregateByKey(emptyTree,lambda tree,transaction: tree.add(transaction,1),lambda tree1,tree2: tree1.merge(tree2))
     return result
 
 def genCondTransactions(basket, rank, nPartitions):
@@ -46,3 +37,13 @@ def genCondTransactions(basket, rank, nPartitions):
 
 def getPartitionId(key, nPartitions):
     return key % nPartitions
+
+file = "/home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt"
+parameter = 120
+numPartitions = 40
+
+data = sc.textFile(file, minPartitions=numPartitions).map(lambda x: map(int, x.strip().split(' '))).persist()
+minSupport = parameter
+
+freqItems = getFrequentItems(data, minSupport)
+freqItemsets = getFrequentItemsets(data, minSupport, freqItems)
