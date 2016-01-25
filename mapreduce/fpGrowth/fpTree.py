@@ -30,6 +30,14 @@ class FPTree(object):
             curr = child
         return self
 
+    def getTransactions(self):
+        return [x for x in self.root._getTransactions()]
+
+    def merge(self,tree):
+        for t in tree.getTransactions():
+            self.add(t[0],t[1])
+        return self
+
 
 class Node(object):
 
@@ -56,6 +64,17 @@ class Node(object):
 
     def addChild(self, node):
         self.children[node.item] = node
+
+    def _getTransactions(self):
+        count = self.count
+        transactions = []
+        for child in self.children.itervalues():
+            for t in child._getTransactions():
+                count-=t[1]
+                t[0].insert(0,child.item)
+                yield t
+        if (count>0):
+            yield ([],count)
 
 class Summary(object):
 

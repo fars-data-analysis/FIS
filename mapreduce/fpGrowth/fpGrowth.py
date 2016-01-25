@@ -2,6 +2,7 @@ import sys
 
 from string import atoi
 from pyspark import SparkContext
+from fpTree import FPTree
 
 # /home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt
 file = "/home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt"
@@ -24,8 +25,10 @@ def getFrequentItems(data,minSupport):
 def getFrequentItemsets(data,minSupport,freqItems):
     rank = dict([(index, item) for (item,index) in enumerate(freqItems)]) # Ordered list based on the freequncy of items, the first is the most appearing one , the last is not appearing too much.
     numPartitions = data.getNumPartitions()
-    dd = data.flatMap(lambda basket: genCondTransactions(basket,rank,numPartitions))    #
-    return dd
+    workByPartition = data.flatMap(lambda basket: genCondTransactions(basket,rank,numPartitions))
+    emptyTree = FPTree()
+    result = workByPartition.aggregateByKey(emptyTree,lambda tree,transaction: tree.add(transaction),lambda tree1,tree2: tree1.merge(tree2))
+    return result
 
 def genCondTransactions(basket, rank, nPartitions):
     #translate into new id's using rank
