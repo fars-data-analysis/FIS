@@ -58,3 +58,9 @@ di un solo numero. unione = quadrupla.
 [1, 2, 5, 7, 6],
 [1, 2, 4, 7, 6],
 [1, 2, 5, 7, 6]]
+
+
+tree.add(['f','c','a','m','p'], 2)
+tree.add(['f','c','a','b','m'], 1)
+tree.add(['f','b'], 1)
+tree.add(['c','b','p'],1)

@@ -18,8 +18,9 @@ def getFrequentItemsets(data,minSupport,freqItems):
     numPartitions = data.getNumPartitions()
     workByPartition = data.flatMap(lambda basket: genCondTransactions(basket,rank,numPartitions))
     emptyTree = FPTree()
-    result = workByPartition.aggregateByKey(emptyTree,lambda tree,transaction: tree.add(transaction,1),lambda tree1,tree2: tree1.merge(tree2))
-    return result
+    forest = workByPartition.aggregateByKey(emptyTree,lambda tree,transaction: tree.add(transaction,1),lambda tree1,tree2: tree1.merge(tree2))
+    itemsets = forest.flatMap(lambda (partId, bonsai): bonsai.extract(minSupport, lambda x: getPartitionId(x,numPartitions) == partId))
+    return itemsets
 
 def genCondTransactions(basket, rank, nPartitions):
     #translate into new id's using rank
@@ -38,12 +39,23 @@ def genCondTransactions(basket, rank, nPartitions):
 def getPartitionId(key, nPartitions):
     return key % nPartitions
 
-file = "/home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt"
-parameter = 120
-numPartitions = 40
+def main(sc):
+    file = "/home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt"
+    support = 2
+    numPartitions = 2
+    minSupport = support
 
-data = sc.textFile(file, minPartitions=numPartitions).map(lambda x: map(int, x.strip().split(' '))).persist()
-minSupport = parameter
+    source=[[1, 2, 3, 4, 5],
+    [1, 2, 4, 5, 6],
+    [1, 2, 5, 7, 6],
+    [1, 2, 4, 7, 6],
+    [1, 2, 5, 7, 6]]
 
-freqItems = getFrequentItems(data, minSupport)
-freqItemsets = getFrequentItemsets(data, minSupport, freqItems)
+    data = sc.parallelize(source,2)
+
+    #data = sc.textFile(file, minPartitions=numPartitions).map(lambda x: map(int, x.strip().split(' '))).persist()
+
+    freqItems = getFrequentItems(data, minSupport)
+    freqItemsets = getFrequentItemsets(data, minSupport, freqItems)
+
+    return freqItems,freqItemsets
