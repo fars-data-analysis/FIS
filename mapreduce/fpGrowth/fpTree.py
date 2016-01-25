@@ -51,6 +51,13 @@ class FPTree(object):
                 newTree.add(t,element.count)
         return newTree
 
+    def extract(self, minCount, isResponsible = lambda x:True):
+        for item,summary in self.summaries.iteritems():
+            if (isResponsible(item) and summary.count >= minCount):
+                yield ([item],summary.count)
+                for element in self.project(item).extract(minCount):
+                    yield ([item]+element[0],element[1])
+
 class Node(object):
 
     def __init__(self, item, count, children):
