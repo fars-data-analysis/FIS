@@ -25,6 +25,7 @@ class FPTree(object):
             else:
                 child = Node(item, 0, {})
                 curr.addChild(child)
+            summary.nodes.append(child)
             child.count += count
             curr = child
         return self
