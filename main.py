@@ -2,7 +2,7 @@ import helpers as hps
 
 import settings
 import setGenerator
-import frequentItemSet001 as fis
+import frequentItemSet as fis
 
 THRESHOLD = 51000
 THRES_HOLD = 2000
@@ -33,7 +33,7 @@ a = [[1, 2, 3, 4, 5],
 
 baskets = [set(i) for i in a]
 
-baskets = setGenerator.genAttrSet()
+#baskets = setGenerator.genAttrSet()
 
 print "THRES_HOLD = ",THRES_HOLD
 
@@ -43,6 +43,18 @@ print " Baskets ready! :) "
 #finalists1, simplefinalists1 = fis.getFrequentItems1(candidates1,TH_MIN,TH_MAX)
 
 candidates1 = fis.countFrequency(baskets)
+
+p = []
+i = 2
+while(len(candidates1) > 0):
+    finalists, simplefinalists = fis.getFrequentItems(candidates1,3)
+    if len(finalists)>0:
+        p.append(finalists)
+    candidates1 = fis.createTuples2(baskets,finalists,simplefinalists,i)
+    i+=1
+
+
+print p
 
 """
 candidates1 = fis.countFrequency(baskets)
