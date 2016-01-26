@@ -42,7 +42,7 @@ def getPartitionId(key, nPartitions):
     return key % nPartitions
 
 def main(sc):
-    file = "/home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt"
+    file = "/Users/danielbruzual/Documents/UNITN/sem1/BIGDATA/project/data/mushroom/mushroom.txt"
     support = 100
     numPartitions = 10
     minSupport = support
