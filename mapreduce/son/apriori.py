@@ -34,15 +34,25 @@ def findFrequentItemsets(input, output, numPartitions, s, sc):
     threshold = s*count
 
     #split string baskets into lists of items
-    baskets = data.map(lambda line: sorted([int(y) for y in line.strip().split(' ')])).persist()
+    baskets = data.map(lambda line: sorted([int(y) for y in line.strip().split(' ')]))
 
-    localItemSets = baskets.map(set).mapPartitions(lambda x: localApriori(x, threshold/numPartitions), True)
+    basketSets = baskets.map(set).persist()
+
+    localItemSets = baskets.mapPartitions(lambda x: localApriori(x, threshold/numPartitions), True)
 
     allItemSets = localItemSets.flatMap(lambda n_itemset: [x for x in n_itemset])
 
-    freqItemSets = allItemSets.map(lambda x: (x, 1)).reduceByKey(lambda x,y: x).map(lambda (x,y): x)
+    mergedCandidates = allItemSets.map(lambda x: (x, 1)).reduceByKey(lambda x,y: x).map(lambda (x,y): x)
 
-    return freqItemSets
+    mergedCandidates = mergedCandidates.collect()
+
+    candidates = sc.broadcast(mergedCandidates)
+
+    counts = basketSets.flatMap(lambda line: [(x,1) for x in candidates.value if line.issuperset(x)])
+
+    finalItemSets = counts.reduceByKey(lambda v1, v2: v1+v2).filter(lambda (i,v): v>=threshold)
+
+    return finalItemSets
 
 def localApriori(baskets, threshold):
     baskets = list(baskets)
