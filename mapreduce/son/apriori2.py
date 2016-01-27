@@ -43,20 +43,31 @@ def findFrequentItemsets(input, output, numPartitions, s, sc):
     #classic word count
     singleCount = itemBasketsByWorker.map(lambda ((partId,basketId),item): ((partId, tuple([item])),1), True)
 
+
+
     #Add up counts and filter with threshold
-    freqLocalSingles = singleCount.reduceByKey(lambda v1, v2: v1+v2).filter(lambda c: c[1]>=threshold/numPartitions) #.map(lambda ((partId, item),count): (partId, item))
+    freqLocalSingles = singleCount.reduceByKey(lambda v1, v2: v1+v2).filter(lambda c: c[1]>=threshold/numPartitions)
 
     #Remove unfrequent items from baskets
     filteredBaskets = itemBasketsByWorker.map(lambda ((p, t),i): ((p,tuple([i])), t)).leftOuterJoin(freqLocalSingles).filter(lambda ((p, i), (b,j)): j!=None).map(lambda ((p,i),(b,j)): ((p,b),i))
 
     #combine with itself to generate pairs...transform basket
+    tuplesInBaskets = filteredBaskets.join(filteredBaskets).filter(lambda ((p,b),(i1,i2)): i1[0]<i2[0]).mapValues(lambda (i1,i2): i1+i2).map(lambda ((p, b), items): ((p, items), b))
 
-    #count pairs
 
-    #filter with threshold
+
+    #Determine frequent pairs by counting all pairs and filtering with threshold
+    freqPairs = tuplesInBaskets.mapValues(lambda x: 1).reduceByKey(lambda v1, v2: v1+v2).filter(lambda c: c[1]>=threshold/numPartitions)
 
     #remove unfrequent pairs from baskets
-    return filteredBaskets
+    filteredBaskets = tuplesInBaskets.map(lambda ((p,t), i): ((p,tuple([i])),t)).leftOuterJoin(freqPairs).filter(lambda ((p, i), (b,j)): j!=None).map(lambda ((p,i),(b,j)): ((p,b),i))
+    """
+    #combine with itself to generate triplets
+    tuplesInBaskets = filteredBaskets.join(filteredBaskets).filter(lambda ((p,b),(t1,t2)): t1[0]<t2[0]).mapValues(lambda (i1, i2): sorted(i1+i2)).map(lambda ((p, b), items): ((p, items), b))
+
+    #freqPairs = tuplesInBaskets.mapValues(lambda x: 1).reduceByKey(lambda v1, v2: v1+v2).filter(lambda c: c[1]>=threshold/numPartitions)
+    """
+    return filteredBaskets, freqPairs, tuplesInBaskets, freqLocalSingles
 
 def getBreakUp():
     class nonlocal:
