@@ -78,4 +78,3 @@ def createTuples2(itemBaskets,finalists,simpleFinalistsset,n):
             if candidate[0].issubset(basket):
                 candidate[1]+=1
     return candidates
-    

@@ -42,7 +42,11 @@ print " Baskets ready! :) "
 #candidates1 = fis.countFrequency(baskets)
 #finalists1, simplefinalists1 = fis.getFrequentItems1(candidates1,TH_MIN,TH_MAX)
 
+
+
 candidates1 = fis.countFrequency(baskets)
+import copy
+oldB = copy.deepcopy(baskets)
 
 p = []
 i = 2
@@ -56,6 +60,7 @@ while(len(candidates1) > 0):
 
 print p
 
+oldB==baskets
 """
 candidates1 = fis.countFrequency(baskets)
 finalists1, simplefinalists1 = fis.getFrequentItems(candidates1,THRES_HOLD)
