@@ -33,41 +33,51 @@ def findFrequentItemsets(input, output, numPartitions, s, sc):
 
     threshold = s*count
 
+    res = {}
+
     #split string baskets into lists of items
-    baskets = data.map(lambda line: sorted([int(y) for y in line.strip().split(' ')]))
+    #Result: ([items])
+    res[0] = baskets = data.map(lambda line: sorted([int(y) for y in line.strip().split(' ')]))
 
     #key each basket by partition id, to ensure work is done locally
     #break down transactions into single items, with an id referring to the basket
-    itemBasketsByWorker = baskets.mapPartitionsWithIndex(getBreakUp())
+    #Result: ((partId, basketId), item)
+    res[1] = expandedBaskets = baskets.mapPartitionsWithIndex(getBreakUp())
 
     #classic word count
-    singleCount = itemBasketsByWorker.map(lambda ((partId,basketId),item): ((partId, tuple([item])),1), True)
-
-
+    #Result: ((partId, tuple([items])), count)
+    res[2] = candidates_1 = expandedBaskets.map(lambda ((partId,basketId),item): ((partId, tuple([item])),1), True).reduceByKey(lambda v1, v2: v1+v2)
 
     #Add up counts and filter with threshold
-    freqLocalSingles = singleCount.reduceByKey(lambda v1, v2: v1+v2).filter(lambda c: c[1]>=threshold/numPartitions)
+    #Result: ((partId, tuple([items])), count)
+    res[3] = frequent_1 = candidates_1.filter(lambda c: c[1]>=threshold/numPartitions)
 
     #Remove unfrequent items from baskets
-    filteredBaskets = itemBasketsByWorker.map(lambda ((p, t),i): ((p,tuple([i])), t)).leftOuterJoin(freqLocalSingles).filter(lambda ((p, i), (b,j)): j!=None).map(lambda ((p,i),(b,j)): ((p,b),i))
+    #Result: ((partId, basketId), tuple([items]
+    res[4] = expandedBaskets = expandedBaskets.map(lambda ((p, b),i): ((p,tuple([i])), b), True).leftOuterJoin(frequent_1, numPartitions).filter(lambda ((p, i), (b,count)): count!=None).map(lambda ((p,i),(b,count)): ((p,b),i), True)
 
-    #combine with itself to generate pairs...transform basket
-    tuplesInBaskets = filteredBaskets.join(filteredBaskets).filter(lambda ((p,b),(i1,i2)): i1[0]<i2[0]).mapValues(lambda (i1,i2): i1+i2).map(lambda ((p, b), items): ((p, items), b))
+    #combine with itself to generate pairs. Transforms the basket into tuples that ocur inside it
+    #Result: ((partId, basketId), tuple([items]))
+    res[5] = expandedBaskets = expandedBaskets.join(expandedBaskets, numPartitions).filter(lambda ((p,b),(i1,i2)): i1[0]<i2[0]).mapValues(lambda (i1,i2): i1+i2)
 
-
+    #classic word count
+    #Result: ((partId, tuple([items])), count)
+    res[6] = candidates_n = expandedBaskets.map(lambda ((p, b), items): ((p, items), 1), True).reduceByKey(lambda v1, v2: v1+v2)
 
     #Determine frequent pairs by counting all pairs and filtering with threshold
-    freqPairs = tuplesInBaskets.mapValues(lambda x: 1).reduceByKey(lambda v1, v2: v1+v2).filter(lambda c: c[1]>=threshold/numPartitions)
+    #Result: ((partId, tuple([items])), count)
+    res[7] = frequent_n = candidates_n.filter(lambda c: c[1]>=threshold/numPartitions)
 
     #remove unfrequent pairs from baskets
-    filteredBaskets = tuplesInBaskets.map(lambda ((p,t), i): ((p,tuple([i])),t)).leftOuterJoin(freqPairs).filter(lambda ((p, i), (b,j)): j!=None).map(lambda ((p,i),(b,j)): ((p,b),i))
+    #Result: ((partId, basketId), tuple([items]))
+    res[8] = expandedBaskets = expandedBaskets.map(lambda ((p,b), i): ((p,i),b), True).leftOuterJoin(frequent_n, numPartitions).filter(lambda ((p, i), (b,count)): count!=None).map(lambda ((p,i),(b,count)): ((p,b),i), True)
     """
     #combine with itself to generate triplets
-    tuplesInBaskets = filteredBaskets.join(filteredBaskets).filter(lambda ((p,b),(t1,t2)): t1[0]<t2[0]).mapValues(lambda (i1, i2): sorted(i1+i2)).map(lambda ((p, b), items): ((p, items), b))
+    tuplesInBaskets = expandedBaskets.join(expandedBaskets).filter(lambda ((p,b),(t1,t2)): t1[0]<t2[0]).mapValues(lambda (i1, i2): sorted(i1+i2)).map(lambda ((p, b), items): ((p, items), b))
 
     #freqPairs = tuplesInBaskets.mapValues(lambda x: 1).reduceByKey(lambda v1, v2: v1+v2).filter(lambda c: c[1]>=threshold/numPartitions)
     """
-    return filteredBaskets, freqPairs, tuplesInBaskets, freqLocalSingles
+    return res
 
 def getBreakUp():
     class nonlocal:
