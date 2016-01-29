@@ -134,7 +134,7 @@ def saveToFile(directory):
     print "Reading csv files..."
     baschetti = genAttrSet()
 
-    print "Writing translated data to: ", directory,"/",fileData
+    print "Writing translated data to: ", directory+fileData
     fData = open(directory+"/"+fileData,'w')
     for b in baschetti:
         fData.write(" ".join([str(i) for i in b])+"\n")
@@ -142,7 +142,7 @@ def saveToFile(directory):
     print "done"
 
 
-    print "Writing translation table to: ", directory,"/",fileTrans
+    print "Writing translation table to: ", directory+fileTrans
     fTrans = open(directory+"/"+fileTrans,'w')
     fTrans.write("Look-up:\n")
     for l in range(0,len(keyLookup)):
@@ -150,7 +150,7 @@ def saveToFile(directory):
     fTrans.close()
     print "done"
 
-    print "Writing reverse look-up table to: ", directory, "/", fileRTrans
+    print "Writing reverse look-up table to: ", directory+fileRTrans
     fRTrans = open(directory+"/"+fileRTrans,'w')
     fRTrans.write("Reverse look-up table:\n")
     for l in sorted(valueLookup.keys()):
