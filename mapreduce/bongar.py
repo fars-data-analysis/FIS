@@ -3,6 +3,7 @@ import sys
 from string import atoi
 from pyspark import SparkContext
 from pyspark.mllib.fpm import FPGrowth
+#import fpGrowth as PyFPGrowth
 
 def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
     """Finds frequent itemsets contained in a given datafile.
@@ -28,10 +29,13 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
 
     Args:
         arg1 (string): Location of the data file
-        arg2 (float): Size of each sample. Expressed as a probability
-        arg3 (int): Number of samples to make
-        arg4 (int): Threshold
-        arg5 (float): Relaxation factor
+        arg2  (string): Location to save results
+        arg3 (float): Size of each sample. Expressed as a probability
+        arg4 (int): Number of samples to make
+        arg5 (float): Threshold
+        arg6 (float): Relaxation factor
+        arg7 (int): Max length of itemset
+        arg8 (SparkContext)
 
     Returns:
         list: List of all the encountered frequent itemsets. There is no
@@ -40,7 +44,7 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
     """
 
     #Read input file
-    data = sc.textFile(input).map(lambda x: [y for y in x.strip().split(' ')]).persist()
+    data = sc.textFile(input).map(lambda x: [int(y) for y in x.strip().split(' ')]).persist()
 
     size = data.count()
 
@@ -52,7 +56,8 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
     #Calculate itemsets
     candidateResults = []
     for sample in samples:
-        model = FPGrowth.train(sample, minSupport=s*r, maxPatternLength=n)
+        #candidateResults.append(PyFPGrowth.runFPGrowth(sample, s*r))
+        model = FPGrowth.train(sample, minSupport=s*r)
         candidateResults.append(model.freqItemsets().map(lambda x: tuple(sorted(x.items))))
 
     #Merge results from all workers
@@ -61,8 +66,8 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
         mergedResults = mergedResults.union(c)
 
     #Broadcast candidate itemsets
-    finalCandidates = mergedResults.distinct()
-    finalCandidates.map(lambda x: ", ".join(x)).saveAsTextFile(output+"/candidates")
+    finalCandidates = mergedResults.filter(lambda x: len(x)<=n).distinct()
+    #finalCandidates.map(lambda x: ", ".join(x)).saveAsTextFile(output+"/candidates")
 
     candidatesBroadcast = sc.broadcast(finalCandidates.collect())
 
@@ -79,7 +84,7 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
     #Collect results and filter with threshold
     mergedItemsets.saveAsTextFile(output+"/itemsets")
 
-    return True
+    return mergedItemsets
 
 
 """
