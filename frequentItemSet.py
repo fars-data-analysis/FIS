@@ -25,7 +25,7 @@ def getFrequentItems(candidates,s):
     finalists = set()
     simpleFinalistsset = set()
     for item,freq in candidates.iteritems():
-        if freq[1] > s:
+        if freq[1] >= s:
             finalists.add(item)
             for i in item:
                 simpleFinalistsset.add(i)
