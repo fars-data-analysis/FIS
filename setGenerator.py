@@ -1,13 +1,15 @@
 import settings as stg
 import pickle
 import csv
-
+import os
+import datetime
 
 #stg.print_conf_dic()
 
 
 paths = []
 openedFiles = []
+openedIgnoreFiles = []
 csvObjects = []
 item_set = set()
 ignoreList = []
@@ -19,7 +21,7 @@ itemBaskets = {}
 
 def genAttrSet():
 
-    # GENERATES ALL FILE PATSH
+    # GENERATES ALL FILE PATHS
     for subfolder in stg.conf_dic['subfolders']:
         for fileName in stg.conf_dic['filenames']:
             paths.append(stg.conf_dic['folder'][0]+subfolder+fileName+".csv")
@@ -33,7 +35,6 @@ def genAttrSet():
         csvObjects.append(csv.DictReader(openedFile,delimiter=','))
 
     # OPEN ALL IGNORE FILE
-    openedIgnoreFiles = []
     for fileName in stg.conf_dic['filenames']:
         openedIgnoreFiles.append(open(stg.conf_dic['ignore'][0]+fileName,'r'))
 
@@ -93,7 +94,6 @@ def genAttrSet():
 
 """
 
-
 def countFrequency(itemBaskets):
     freq = [0]*len(itemBaskets)
     for x in itemBaskets:
@@ -117,6 +117,61 @@ def printstats():
     print itemBaskets
 
 
+def saveToFile(directory):
+    fileData = "data"
+    fileTrans = "translation"
+    fileRTrans = "r_ranslation"
+    fileSummary = "summary"
+
+    try:
+        print "Creating directory: ",directory
+        os.makedirs(directory)
+    except OSError:
+        print "already exists"
+        if not os.path.isdir(directory):
+            raise
+
+    print "Reading csv files..."
+    baschetti = genAttrSet()
+
+    print "Writing translated data to: ", directory,"/",fileData
+    fData = open(directory+"/"+fileData,'w')
+    for b in baschetti:
+        fData.write(" ".join([str(i) for i in b])+"\n")
+    fData.close()
+    print "done"
+
+
+    print "Writing translation table to: ", directory,"/",fileTrans
+    fTrans = open(directory+"/"+fileTrans,'w')
+    fTrans.write("Look-up:\n")
+    for l in range(0,len(keyLookup)):
+        fTrans.write(str(l)+"\t"+keyLookup[l]+"\n")
+    fTrans.close()
+    print "done"
+
+    print "Writing reverse look-up table to: ", directory, "/", fileRTrans
+    fRTrans = open(directory+"/"+fileRTrans,'w')
+    fRTrans.write("Reverse look-up table:\n")
+    for l in sorted(valueLookup.keys()):
+        fRTrans.write(l+"\t"+str(valueLookup[l])+"\n")
+
+    fRTrans.close()
+    print "done"
+
+    print "Writing summary file to: ", directory,"/",fileSummary
+    fSumm = open(directory+"/"+fileSummary,'w')
+    fSumm.write("Generated on "+str(datetime.datetime.now())+"\n\n\n")
+    fSumm.write("Files processed:\n\n")
+    for i in range(0,len(openedFiles)):
+        fSumm.write("\n"+openedFiles[i].name+"\n")
+        if len(ignoreList[i]) > 0:
+            fSumm.write("Ignored cols: "+", ".join(ignoreList[i])+"\n")
+
+    fSumm.close()
+    print "done"
+
+    return
 
 def main():
     baschetti = genAttrSet()
