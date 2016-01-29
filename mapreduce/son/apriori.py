@@ -2,7 +2,7 @@ import sys
 import copy
 
 from string import atoi
-from pyspark import SparkContext
+from pyspark import SparkContext, SparkConf
 import frequentItemSet as fis
 
 def findFrequentItemsets(input, output, numPartitions, s, sc):
@@ -52,6 +52,8 @@ def findFrequentItemsets(input, output, numPartitions, s, sc):
 
     finalItemSets = counts.reduceByKey(lambda v1, v2: v1+v2).filter(lambda (i,v): v>=threshold)
 
+    finalItemSets.saveAsTextFile(output)
+
     return finalItemSets
 
 def localApriori(baskets, threshold):
@@ -67,3 +69,24 @@ def localApriori(baskets, threshold):
         i+=1
 
     return p
+
+
+if __name__ == "__main__":
+
+    APP_NAME = "SON-apriori"
+
+    conf = SparkConf().setAppName(APP_NAME)
+    conf = conf.setMaster("local[*]")
+
+    sc  = SparkContext(conf=conf)
+
+    f_input = sys.argv[1]
+    f_output = sys.argv[2]
+    threshold = float(sys.argv[3])
+
+    if len(sys.argv) > 3:
+        numPartitions = int(sys.argv[4])
+    else:
+        numPartitions = None
+        
+    findFrequentItemsets(f_input, f_output, numPartitions, threshold, sc)
