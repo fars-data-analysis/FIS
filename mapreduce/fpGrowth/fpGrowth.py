@@ -41,6 +41,12 @@ def genCondTransactions(basket, rank, nPartitions):
 def getPartitionId(key, nPartitions):
     return key % nPartitions
 
+def runFPGrowth(data, minSupport):
+    freqItems = getFrequentItems(data, minSupport)
+    freqItemsets = getFrequentItemsets(data, minSupport, freqItems)
+    return freqItemsets
+
+
 def main(sc):
     file = "/Users/danielbruzual/Documents/UNITN/sem1/BIGDATA/project/data/mushroom/mushroom.txt"
     support = 100
