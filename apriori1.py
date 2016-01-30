@@ -3,7 +3,6 @@ from itertools import imap, combinations
 
 
 
-
 # input:
 #    data: List of lists containing numeric values
 #     min_sup: Minimum support ti be considered frequent (we select values that appears at least many times as s in baskets)
@@ -11,6 +10,7 @@ from itertools import imap, combinations
 #  returns:
 #	  solution: dictionary of sets of frozensets representing frequent itemsets, contains both numeric values and tuples.
 #		(be carefull on iterating on it)
+
 def get_frequent_items_sets(data,min_sup,steps=0):
 
 	# we transform the dataset in a list of sets
@@ -58,6 +58,7 @@ def get_frequent_items_sets(data,min_sup,steps=0):
 #  returns:
 #	   set: a set containing all combinations with cardinality equal to length
 #		(be carefull on iterating on it)
+
 def create_candidates(itemSet, length):
         return set([i.union(j) for i in itemSet for j in itemSet if len(i.union(j)) == length])
 
@@ -70,6 +71,7 @@ def create_candidates(itemSet, length):
 #     transactions: list of sets representing baskets
 #  returns:
 #	   _itemSet: a set containing all frequent candidates (a subset of inputs)
+
 def frequent_items(items, transactions, min_sup):
 	_itemSet = set()
 	counter = defaultdict(int)
@@ -82,3 +84,13 @@ def frequent_items(items, transactions, min_sup):
 		if count >= min_sup:
 			_itemSet.add(item)
 	return _itemSet
+
+
+# helper to standardize the output (not part of the algorithm)
+
+def please_clean(solution):
+	res = []
+	for i in solution.itervalues():
+		for j in i:
+			res.append(j)
+	return res
