@@ -3,7 +3,8 @@ from itertools import imap
 
 
 def find_frequent_itemsets(transactions, minimum_support, include_support=False):
-    items = defaultdict(lambda: 0) # mapping from items to their supports
+	
+    items = defaultdict(lambda: 0)
 
     # Load the passed-in transactions and count the support that individual
     # items have.
@@ -299,7 +300,4 @@ def get_frequent_items_sets(transactions,min_sup):
     result = []
     for itemset in find_frequent_itemsets(transactions, min_sup, False):
         result.append(itemset)
-    #result = sorted(result, key=lambda i: i[0])
     return result
-    #for itemset in result:
-    #    print str(itemset) + ' ' + str(support)
