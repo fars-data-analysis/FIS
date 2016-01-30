@@ -2,11 +2,9 @@
 
 #### Big Data Project
 
-**Students:** Andrea Galloni & Daniel Bruzual 
+**Students:** Andrea Galloni & Daniel Bruzual
 
 **Organization:** [UniTN](http://www.unitn.it/en)
-
-
 
 **Course:** [Big Data and Social Networks](http://web.unitn.it/scienze/25367/struttura-del-corso)
 
