@@ -84,9 +84,9 @@ if __name__ == "__main__":
     f_output = sys.argv[2]
     threshold = float(sys.argv[3])
 
-    if len(sys.argv) > 3:
+    if len(sys.argv) > 4:
         numPartitions = int(sys.argv[4])
     else:
         numPartitions = None
-        
+
     findFrequentItemsets(f_input, f_output, numPartitions, threshold, sc)
