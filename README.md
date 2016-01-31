@@ -8,10 +8,18 @@
 
 **Course:** [Big Data and Social Networks](http://web.unitn.it/scienze/25367/struttura-del-corso)
 
-Frequent Itemsets in Map-Reduce with Spark
+## Frequent Itemsets in Map-Reduce with Spark
+
+#### [ALGORITHMS](https://en.wikipedia.org/wiki/Algorithm):
 
 + [Apriori](https://en.wikipedia.org/wiki/Apriori_algorithm)
 + [FP-Growth](https://en.wikipedia.org/wiki/Association_rule_learning#FP-growth_algorithm)
+
+#### [DATA-SETS:](http://fimi.ua.ac.be/data/)
++ MushRooms
++ Retail
++ Kosarak
++ [GES](ftp://ftp.nhtsa.dot.gov/GES) (General Estimates System)
 
 <p align="center">
   <a href="https://spark.apache.org/">
@@ -42,7 +50,6 @@ Frequent Itemsets in Map-Reduce with Spark
   <img src="https://git-scm.com/images/logos/downloads/Git-Logo-1788C.png" width="200">
   </a>
 </p>
-
 
 
 #.
