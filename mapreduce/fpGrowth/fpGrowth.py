@@ -1,7 +1,7 @@
 import sys
 
 from string import atoi
-from pyspark import SparkContext
+from pyspark import SparkContext, SparkConf
 from fpTree import FPTree
 
 # /home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt
@@ -67,3 +67,26 @@ def main(sc):
     freqItemsets = getFrequentItemsets(data, minSupport, freqItems)
 
     return freqItems,freqItemsets
+
+if __name__=="__main__":
+
+    APP_NAME = "FPGrowth"
+
+    conf = SparkConf().setAppName(APP_NAME)
+    conf = conf.setMaster("local[*]")
+
+    sc  = SparkContext(conf=conf)
+
+    finput = sys.argv[1]
+    foutput = sys.argv[2]
+    threshold = float(sys.argv[3])
+
+    data = sc.textFile(finput).map(lambda x: [int(y) for y in x.strip().split(' ')])
+
+    minSupport = data.count() * threshold
+    freqItems = getFrequentItems(data, minSupport)
+    freqItemsets = getFrequentItemsets(data, minSupport, freqItems)
+
+    freqItemsets.saveAsTextFile(foutput)
+    #End Spark
+    sc.stop()
