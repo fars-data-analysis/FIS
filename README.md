@@ -10,6 +10,9 @@
 
 Frequent Itemsets in Map-Reduce with Spark
 
++ [Apriori](https://en.wikipedia.org/wiki/Apriori_algorithm)
++ [FP-Growth](https://en.wikipedia.org/wiki/Association_rule_learning#FP-growth_algorithm)
+
 <p align="center">
   <a href="https://spark.apache.org/">
   <img src="https://spark.apache.org/docs/1.3.0/api/python/_static/spark-logo-hd.png" width="300">
@@ -33,6 +36,13 @@ Frequent Itemsets in Map-Reduce with Spark
   <img src="https://cloud.githubusercontent.com/assets/72919/2874231/3af1db48-d3dd-11e3-98dc-6066f8bc766f.png" width="200">
   </a>
 </p>
+
+<p align="center">
+  <a href="https://git-scm.com/">
+  <img src="https://git-scm.com/images/logos/downloads/Git-Logo-1788C.png" width="200">
+  </a>
+</p>
+
 
 
 #.
