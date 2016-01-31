@@ -300,5 +300,5 @@ class FPNode(object):
 def get_frequent_items_sets(transactions,min_sup):
     result = []
     for itemset in find_frequent_itemsets(transactions, min_sup, False):
-        result.append(itemset)
+        result.append(tuple(itemset))
     return result
