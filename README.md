@@ -82,6 +82,8 @@ sets. In Parallel Architectures, Algorithms and
 Programming (PAAP), 2011 Fourth International
 Symposium on, pages 252–257. IEEE, 2011.
 
+## Technologies:
+
 <p align="center">
   <a href="https://spark.apache.org/">
   <img src="https://spark.apache.org/docs/1.3.0/api/python/_static/spark-logo-hd.png" width="300">
