@@ -48,11 +48,6 @@ THR < 3
 (1, 5, 6):     3
 (2, 5, 6):     3
 
-Se so quali triple sono presenti in quali baskets, considerando i basket contenenti le triple come insiemi,
-allora posso intersecare gli insiemi dei baskets tra di loro per vedere se le quadruple superano il treshold
-verificare applicabilità. questo sembrerebbe potrebbe essere applicato solo a triplette che differiscono tra di loro
-di un solo numero. unione = quadrupla.
-
 [[1, 2, 3, 4, 5],
 [1, 2, 4, 5, 6],
 [1, 2, 5, 7, 6],
@@ -64,3 +59,9 @@ tree.add(['f','c','a','m','p'], 2)
 tree.add(['f','c','a','b','m'], 1)
 tree.add(['f','b'], 1)
 tree.add(['c','b','p'],1)
+
+FOOT NOTES
+Se so quali triple sono presenti in quali baskets, considerando i basket contenenti le triple come insiemi,
+allora posso intersecare gli insiemi dei baskets tra di loro per vedere se le quadruple superano il treshold
+verificare applicabilità. questo sembrerebbe potrebbe essere applicato solo a triplette che differiscono tra di loro
+di un solo numero. unione = quadrupla.

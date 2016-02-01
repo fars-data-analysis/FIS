@@ -4,7 +4,6 @@ from string import atoi
 from pyspark import SparkContext, SparkConf
 from fpTree import FPTree
 
-# /home/alexander/Downloads/DataBigData/data/mushroom/mushroom.txt
 
 def getFrequentItems(data,minSupport):
     singleItems = data.flatMap(lambda x: [(y,1) for y in x])

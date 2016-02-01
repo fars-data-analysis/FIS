@@ -10,7 +10,6 @@ with open('conf.cfg',"r") as config:
 # fills the config dictionary
 [hps.createDict(conf_dic,a.split(":")) for a in cfg]
 
-
 def print_conf_dic():
 	for i in conf_dic.iteritems():
 		print i

@@ -3,7 +3,7 @@ import copy
 
 from string import atoi
 from pyspark import SparkContext, SparkConf
-import apriori1 as apriori
+import apriori
 
 def findFrequentItemsets(input, output, numPartitions, s, sc):
     """

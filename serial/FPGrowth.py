@@ -2,6 +2,14 @@ from collections import defaultdict, namedtuple
 from itertools import imap
 
 
+# input:
+#       transactions: List of lists containing numeric values
+#    minimum_support: Minimum support to be considered frequent (we select values that appears at least many times as s in baskets)
+#    include_support: False keep it false!
+#
+# returns (yield):
+#	        solution: An iterator List of tuples containing Freqent itemsets.
+
 def find_frequent_itemsets(transactions, minimum_support, include_support=False):
 
     items = defaultdict(lambda: 0)
