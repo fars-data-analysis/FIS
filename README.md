@@ -2,13 +2,26 @@
 
 #### Big Data Project
 
-**Students:** Andrea Galloni & Daniel Bruzual
+**Students:**
++ Andrea Galloni (andrea [dot] galloni [at] studenti [dot] unitn [dot] it  )
++ Daniel Bruzual (daniel [dot] bruzualbalzan [at] studenti [dot] unitn [dot] it )
 
 **Organization:** [UniTN](http://www.unitn.it/en)
 
 **Course:** [Big Data and Social Networks](http://web.unitn.it/scienze/25367/struttura-del-corso)
 
 ## Frequent Itemsets in Map-Reduce with Spark
+
+This document presents the work done for the **Big Data and Social Networks** course taken at **UNITN** during the first semester of 2015-2016. The project consisted of several steps.
+
+First a dataset from traffic accidents in the USA NASS General Estimates System was selected and integrated to ensure consistency across different years. This involved studying the data, reading the description manuals, building a common schema and then converting the data with the help of special **data integration**  software **Talend Studio**
+
+Afterwards, several known algorithms to calculate frequent itemsets were implemented. **Apache Spark** was used for implementing them in a parallel paradigm. **A new parallel algorithm was also developed**, which uses repeated random sampling and concepts from other algorithms to calculate frequent itemsets on big datasets while **reducing execution time**.
+
+Finally, the algorithms were tested and compared using the integrated datasets, along with other classic datasets in the field of itemsets mining.
+
+*For further details please have a look to the project report .pdf file.
+**Any question? Please do not be shy write us an e-mail.** *
 
 #### [ALGORITHMS](https://en.wikipedia.org/wiki/Algorithm):
 
