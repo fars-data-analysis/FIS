@@ -1,4 +1,5 @@
 import settings as stg
+import sys
 import pickle
 import csv
 import os
@@ -165,18 +166,14 @@ def saveToFile(directory):
     fSumm.write("Files processed:\n\n")
     for i in range(0,len(openedFiles)):
         fSumm.write("\n"+openedFiles[i].name+"\n")
-        if len(ignoreList[i]) > 0:
-            fSumm.write("Ignored cols: "+", ".join(ignoreList[i])+"\n")
+        if len(ignoreList[i % len(ignoreList)]) > 0:
+            fSumm.write("Ignored cols: "+", ".join(ignoreList[i % len(ignoreList)])+"\n")
 
     fSumm.close()
     print "done"
 
     return
 
-def main():
-    baschetti = genAttrSet()
-    #printstats()
-
 
 if __name__ == '__main__':
-    main()
+    saveToFile(sys.argv[1])
