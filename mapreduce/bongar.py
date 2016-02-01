@@ -1,11 +1,10 @@
 import sys
 
 from string import atoi
-from pyspark import SparkContext
-from pyspark.mllib.fpm import FPGrowth
-#import fpGrowth as PyFPGrowth
+from pyspark import SparkContext, SparkConf
+import mapreduce.fpGrowth.fpGrowth as FPGrowth
 
-def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
+def findFrequentItemsets(input, output, p, n_p, s, r, n=None):
     """Finds frequent itemsets contained in a given datafile.
 
     This function takes n_p samples of size p and runs the bongar algorithm
@@ -35,7 +34,6 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
         arg5 (float): Threshold
         arg6 (float): Relaxation factor
         arg7 (int): Max length of itemset
-        arg8 (SparkContext)
 
     Returns:
         list: List of all the encountered frequent itemsets. There is no
@@ -56,9 +54,9 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
     #Calculate itemsets
     candidateResults = []
     for sample in samples:
-        #candidateResults.append(PyFPGrowth.runFPGrowth(sample, s*r))
-        model = FPGrowth.train(sample, minSupport=s*r)
-        candidateResults.append(model.freqItemsets().map(lambda x: tuple(sorted(x.items))))
+        candidateResults.append(FPGrowth.runFPGrowth(sample, size*s*r*p).map(lambda (itemset, count): tuple(sorted(itemset) ) ))
+        #model = FPGrowth.train(sample, minSupport=s*r)
+        #candidateResults.append(model.freqItemsets().map(lambda x: tuple(sorted(x.items))))
 
     #Merge results from all workers
     mergedResults = candidateResults.pop()
@@ -66,12 +64,15 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
         mergedResults = mergedResults.union(c)
 
     #Broadcast candidate itemsets
-    finalCandidates = mergedResults.filter(lambda x: len(x)<=n).distinct()
+    if n!= None:
+        finalCandidates = mergedResults.filter(lambda x: len(x)<=n).distinct()
+    else:
+        finalCandidates = mergedResults.distinct()
     #finalCandidates.map(lambda x: ", ".join(x)).saveAsTextFile(output+"/candidates")
 
     candidatesBroadcast = sc.broadcast(finalCandidates.collect())
 
-    #Perform occurrence of candidates to discard false positives
+    #Count occurrence of candidates to discard false positives
     def countFrequency(basket):
         emit = []
         for c in candidatesBroadcast.value:
@@ -79,32 +80,36 @@ def findFrequentItemsets(input, output, p, n_p, s, r, n, sc):
                 emit.append(c)
         return [(x,1) for x in emit]
 
-    mergedItemsets = data.map(lambda x: frozenset(x)).flatMap(countFrequency).reduceByKey(lambda v1, v2: v1+v2).filter(lambda x: x[1]>size*s)
+    mergedItemsets = data.map(lambda x: frozenset(x)).flatMap(countFrequency).reduceByKey(lambda v1, v2: v1+v2).filter(lambda x: x[1]>=size*s)
 
     #Collect results and filter with threshold
-    mergedItemsets.saveAsTextFile(output+"/itemsets")
+    mergedItemsets.saveAsTextFile(output)
 
     return mergedItemsets
 
 
-"""
+
 if __name__=="__main__":
 
-    if len(sys.argv) != 4:
-        print("Usage: bongar <input file> <sample size> <num samples> <threshold> <relaxation factor>", file=sys.stderr)
+    APP_NAME = "BONGAR"
+
+    conf = SparkConf().setAppName(APP_NAME)
+    conf = conf.setMaster("local[*]")
+
+    sc  = SparkContext(conf=conf)
+    if len(sys.argv) != 7:
+        print "Usage: bongar <input file> <output file> <sample size> <num samples> <threshold> <relaxation factor>"
         exit(-1)
 
     data = sys.argv[1]
-    p = sys.arg[2] #Expressed as 0<p<=1, the probability that a given row will be in the sample
-    n_p = sys.arg[3] #Number of samples to make
-    s = sys.arg[4] #Threshold for the final itemsets
-    r = sys.arg[5] #Factor to dicrease the threshold for the samples
+    fout = sys.argv[2]
+    p = float(sys.argv[3]) #Expressed as 0<p<=1, the probability that a given row will be in the sample
+    n_p = int(sys.argv[4]) #Number of samples to make
+    s = float(sys.argv[5]) #Threshold for the final itemsets
+    r = float(sys.argv[6]) #Factor to dicrease the threshold for the samples
 
-    #Start Spark
-    sc = SparkContext(appName="FreqItemsetSON")
 
-    findFrequentItemsets(data, p, n_p, s, r)
+    findFrequentItemsets(data, fout, p, n_p, s, r)
 
     #End Spark
     sc.stop()
-"""
