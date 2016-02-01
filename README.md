@@ -104,13 +104,19 @@ Symposium on, pages 252–257. IEEE, 2011.
 
 <p align="center">
   <a href="https://atom.io/">
-  <img src="https://cloud.githubusercontent.com/assets/72919/2874231/3af1db48-d3dd-11e3-98dc-6066f8bc766f.png" width="200">
+  <img src="https://cloud.githubusercontent.com/assets/72919/2874231/3af1db48-d3dd-11e3-98dc-6066f8bc766f.png" width="300">
   </a>
 </p>
 
 <p align="center">
   <a href="https://git-scm.com/">
   <img src="https://git-scm.com/images/logos/downloads/Git-Logo-1788C.png" width="200">
+  </a>
+</p>
+
+<p align="center">
+  <a href="http://matplotlib.org/api/pyplot_api.html">
+  <img src="http://matplotlib.org/xkcd/_static/logo2.png" width="300">
   </a>
 </p>
 
