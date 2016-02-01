@@ -47,26 +47,6 @@ def runFPGrowth(data, minSupport):
     return freqItemsets
 
 
-def main(sc):
-    file = "/Users/danielbruzual/Documents/UNITN/sem1/BIGDATA/project/data/mushroom/mushroom.txt"
-    support = 100
-    numPartitions = 10
-    minSupport = support
-
-    source=[[1, 2, 3, 4, 5],
-    [1, 2, 4, 5, 6],
-    [1, 2, 5, 7, 6],
-    [1, 2, 4, 7, 6],
-    [1, 2, 5, 7, 6]]
-
-    data = sc.parallelize(source,4)
-
-    data = sc.textFile(file, minPartitions=numPartitions).map(lambda x: map(int, x.strip().split(' '))).persist()
-
-    freqItems = getFrequentItems(data, minSupport)
-    freqItemsets = getFrequentItemsets(data, minSupport, freqItems)
-
-    return freqItems,freqItemsets
 
 if __name__=="__main__":
 
