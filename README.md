@@ -27,6 +27,8 @@ Finally, the algorithms were tested and compared using the integrated datasets, 
 
 + [Apriori](https://en.wikipedia.org/wiki/Apriori_algorithm) [3]
 + [FP-Growth](https://en.wikipedia.org/wiki/Association_rule_learning#FP-growth_algorithm) [4]
++ SON
++ BonGar (**novel solution**)
 
 #### [DATA-SETS:](http://fimi.ua.ac.be/data/)
 + MushRooms
