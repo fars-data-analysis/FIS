@@ -3,7 +3,7 @@
 #### Big Data Project
 
 **Students:**
-+ [Andrea Galloni](https://twitter.com/andreagalloni92) (andrea [dot] galloni [at] studenti [dot] unitn [dot] it )
++ [Andrea Galloni](http://www.andreagalloni.eu) (andrea [dot] galloni [at] studenti [dot] unitn [dot] it )
 + Daniel Bruzual (daniel [dot] bruzualbalzan [at] studenti [dot] unitn [dot] it )
 
 **Organization:** [UniTN](http://www.unitn.it/en)
